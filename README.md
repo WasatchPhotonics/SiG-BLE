@@ -12,6 +12,6 @@ accessible via BLE (Bluetooth Low Energy).
 
 Run the BLE service:
 
-  $ sudo PYTHONPATH=/path/to/Wasatch.PY python -u main.py
+    $ sudo PYTHONPATH=/path/to/Wasatch.PY python -u main.py
 
 (Sudo required because pybleno [uses raw sockets](https://github.com/Adam-Langley/pybleno/issues/12#issuecomment-386927390].
