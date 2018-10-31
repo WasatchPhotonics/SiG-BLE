@@ -1,28 +1,19 @@
-from pybleno import Characteristic
-import array, sys, logging
-sys.path.append("/home/pi/code/Wasatch.PY/")
+import sys
 import json
+import array
+import logging
+
+from pybleno import Characteristic
+
 from wasatch.WasatchDevice import WasatchDevice
 from wasatch.WasatchBus import WasatchBus
 from wasatch import applog
 
-log = logging.getLogger(__name__)
-logger = applog.MainLogger("DEBUG")
-
-log.debug("instantiating WasatchBus")
-bus = WasatchBus(use_sim = False)
-
-if not bus.devices:
-    print("No Wasatch USB spectrometers found.")
-    sys.exit(0)
-
-uid = bus.devices[0]
-log.debug("instantiating WasatchDevice (blocking)")
-device = WasatchDevice(uid, bus_order=0)
-ok = device.connect()
-log.info("connect: device connected")
-device.change_setting("integration_time_ms", 10)
-
+################################################################################
+#                                                                              #
+#                                Characteristics                               #
+#                                                                              #
+################################################################################
 
 class IntegrationTime(Characteristic):
     def __init__(self, uuid):
@@ -37,7 +28,7 @@ class IntegrationTime(Characteristic):
     def onWriteRequest(self, data, offset, withoutResponse, callback):
         self._value = data
         device.change_setting("integration_time_ms", data)
-        print("Integration time changed to %d ms" %int(data))
+        print("Integration time changed to %d ms" % int(data))
         if self._updateValueCallback:
             self._updateValueCallback(self._value)
         callback(Characteristic.RESULT_SUCCESS)
@@ -126,4 +117,22 @@ class Laser_enable(Characteristic):
     def onUnsubscribe(self):
         print("on unsubscribe")
         self._updateValueCallback = None
-    
+
+# when does this get run? on import?
+
+log = logging.getLogger(__name__)
+logger = applog.MainLogger("DEBUG")
+
+log.debug("instantiating WasatchBus")
+bus = WasatchBus()
+if not bus.devices:
+    print("No Wasatch USB spectrometers found.")
+    sys.exit(0)
+
+uid = bus.devices[0]
+log.debug("instantiating WasatchDevice (blocking)")
+device = WasatchDevice(uid, bus_order=0)
+
+ok = device.connect()
+log.info("connect: device connected")
+device.change_setting("integration_time_ms", 10)
